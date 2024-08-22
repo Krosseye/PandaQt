@@ -1,0 +1,3 @@
+pyside6
+panda3d
+platformdirs
