@@ -46,7 +46,7 @@ class CameraControlsWidget(QWidget):
         self.fov_widget = self._create_slider_with_reset(
             label="FOV",
             range=(30, 120),
-            default_value=75,
+            default_value=50,
             reset_function=self.reset_fov,
         )
 
@@ -65,7 +65,7 @@ class CameraControlsWidget(QWidget):
         self.z_position_widget = self._create_slider_with_reset(
             label="Z Position",
             range=(-25, 25),
-            default_value=7,
+            default_value=8,
             reset_function=self.reset_z_position,
         )
 
@@ -191,8 +191,8 @@ class CameraControlsWidget(QWidget):
         self.roll_widget.findChild(QSlider).setValue(0)
 
     def reset_fov(self):
-        self.engine.camera_controller.update_fov(75)
-        self.fov_widget.findChild(QSlider).setValue(75)
+        self.engine.camera_controller.update_fov(50)
+        self.fov_widget.findChild(QSlider).setValue(50)
 
     def reset_x_position(self):
         self.engine.camera_controller.update_position_x(0)
@@ -203,8 +203,8 @@ class CameraControlsWidget(QWidget):
         self.y_position_widget.findChild(QSlider).setValue(-15)
 
     def reset_z_position(self):
-        self.engine.camera_controller.update_position_z(7)
-        self.z_position_widget.findChild(QSlider).setValue(7)
+        self.engine.camera_controller.update_position_z(8)
+        self.z_position_widget.findChild(QSlider).setValue(8)
 
     def reset_rotation_speed(self):
         self.engine.camera_controller.update_rotation_speed(0)
