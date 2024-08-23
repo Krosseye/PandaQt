@@ -21,11 +21,11 @@ class CameraController:
         """Setup the camera."""
         self.camera = self.engine.makeCamera(self.engine.win, lens=self.engine.camLens)
         lens = self.camera.node().getLens()
-        lens.setFov(75)
+        lens.setFov(50)
         self.camera.reparentTo(self.engine.scene_manager.scene_objects[0])
         self.gimbal = self.engine.render.attach_new_node("gimbal")
         self.engine.cam.reparent_to(self.gimbal)
-        self.engine.cam.set_pos(0, -15, 7)
+        self.engine.cam.set_pos(0, -15, 8)
         self.gimbal.setHpr(0, 0, 0)
 
     def _rotate_camera_task(self, task):
@@ -111,3 +111,7 @@ class CameraController:
         current_pos = self.engine.cam.getPos(self.gimbal)
         self.engine.cam.setPos(self.gimbal, current_pos.x, current_pos.y, z)
         logger.debug("Camera z position set to: %i", z)
+
+    def get_position(self):
+        current_pos = self.engine.cam.getPos(self.gimbal)
+        return current_pos

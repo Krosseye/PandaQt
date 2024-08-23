@@ -2,12 +2,11 @@ import logging
 import time
 
 from PySide6.QtCore import Qt, QTimer, Signal, Slot
-from PySide6.QtGui import QImage, QPainter, QPixmap
-from PySide6.QtWidgets import (
-    QWidget,
-)
+from PySide6.QtGui import QImage, QMouseEvent, QPainter, QPixmap, QWheelEvent
+from PySide6.QtWidgets import QWidget
 
 from .engine_base import EngineBase
+from .input_handler import InputHandler
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 class EngineWidget(QWidget):
     size_changed = Signal(int, int)
 
-    def __init__(self, fps_cap, min_width=250):
+    def __init__(self, fps_cap, min_width=250, status_bar=None):
         super().__init__()
         palette = self.palette()
         palette.setColor(self.backgroundRole(), "#3c3c3c")
@@ -26,6 +25,7 @@ class EngineWidget(QWidget):
         self._width, self._height = self.size().width(), self.size().height()
         self.engine = EngineBase(fps_cap)
         self.pixmap = QPixmap()
+        self.status_bar = status_bar
 
         self.is_resizing = False
         self.frame_captured_timestamp = 0
@@ -40,6 +40,8 @@ class EngineWidget(QWidget):
 
         self.engine.notifier.frame_captured.connect(self._on_frame_captured)
         self.size_changed.connect(self.engine.update_window_size)
+
+        self.input_handler = InputHandler(self)
 
     def paintEvent(self, event):
         if self.pixmap.isNull():
@@ -56,6 +58,18 @@ class EngineWidget(QWidget):
         self.engine.stop()
         self.engine = None
         event.accept()
+
+    def mousePressEvent(self, event: QMouseEvent):
+        self.input_handler.handle_mouse_press(event)
+
+    def mouseReleaseEvent(self, event: QMouseEvent):
+        self.input_handler.handle_mouse_release(event)
+
+    def mouseMoveEvent(self, event: QMouseEvent):
+        self.input_handler.handle_mouse_move(event)
+
+    def wheelEvent(self, event: QWheelEvent):
+        self.input_handler.handle_wheel(event)
 
     @Slot(QImage)
     def _on_frame_captured(self, q_image: QImage):

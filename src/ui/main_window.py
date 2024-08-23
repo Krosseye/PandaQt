@@ -35,7 +35,6 @@ class MainWindow(QMainWindow):
         self.fps_cap = fps_cap
         self._init_ui()
         self._setup_menu()
-        self._setup_status_bar()
         setup_docks(self)
 
         self.viewport_widget.size_changed.connect(self._update_resolution_label)
@@ -47,8 +46,9 @@ class MainWindow(QMainWindow):
         """
         self.setMinimumSize(640, 360)
         self.setWindowTitle("PandaQt")
+        self._setup_status_bar()
 
-        self.viewport_widget = EngineWidget(self.fps_cap)
+        self.viewport_widget = EngineWidget(self.fps_cap, status_bar=self.status_bar)
         self.setCentralWidget(self.viewport_widget)
 
     def _setup_menu(self):
