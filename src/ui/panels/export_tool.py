@@ -68,10 +68,12 @@ class ImageExportWidget(QWidget):
         self.anti_aliasing_input = self._create_anti_aliasing_input()
         self.save_path_input = self._create_save_path_input()
         self.preview_checkbox = self._create_preview_checkbox()
+        self.format_input = self._create_format_input()  # Add format selection
 
         form_layout.addRow("Width:", self.width_input)
         form_layout.addRow("Height:", self.height_input)
         form_layout.addRow("Anti-Aliasing:", self.anti_aliasing_input)
+        form_layout.addRow("Format:", self.format_input)  # Add format row
         form_layout.addRow("Export Path:", self.save_path_input)
         form_layout.addRow(self.preview_checkbox)
 
@@ -116,6 +118,13 @@ class ImageExportWidget(QWidget):
         preview_checkbox.setChecked(True)
         return preview_checkbox
 
+    def _create_format_input(self):
+        """Create a QComboBox for selecting file format."""
+        format_input = QComboBox(self)
+        format_input.addItems(["PNG", "JPEG", "BMP", "TIFF"])
+        format_input.setCurrentIndex(0)  # Default to PNG
+        return format_input
+
     def _create_browse_button(self):
         """Create a button for browsing export folder."""
         browse_button = QPushButton(QIcon.fromTheme("folder"), "Browse...")
@@ -145,9 +154,10 @@ class ImageExportWidget(QWidget):
             self.save_path_input.setText(folder_path)
 
     def _generate_save_path(self, folder_path):
-        """Generate a full save path with a timestamped filename."""
+        """Generate a full save path with a timestamped filename and selected format."""
         timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-        filename = f"image-{timestamp}.png"
+        format_extension = self.format_input.currentText().lower()
+        filename = f"image-{timestamp}.{format_extension}"
         return os.path.join(folder_path, filename)
 
     def _export_image(self):
