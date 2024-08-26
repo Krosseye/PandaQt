@@ -39,7 +39,7 @@ class AboutDialog(QDialog):
             """
             <p>Welcome to PandaQt!</p>
             <p>This application demonstrates how to embed the Panda3D game engine into a PySide6/Qt application, allowing you to integrate Panda3D's powerful rendering capabilities directly within a standard QWidget.</p>
-            <p>For more information and to access the source code, visit the project's <a href="https://github.com/Krosseye/PandaQt">GitHub repository</a>.</p>
+            <p>For more information and to access the source code, visit the project's <a href="https://github.com/killian-w/PandaQt">GitHub repository</a>.</p>
             """
         )
         description_label.setWordWrap(True)
