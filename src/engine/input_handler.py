@@ -90,11 +90,11 @@ class InputHandler:
         zoom_step = 1 if event.angleDelta().y() > 0 else -1
 
         camera_pos = self.engine.camera_controller.get_position()
-        new_zoom_level = max(-50, min(50, self._zoom_level + zoom_step))
-        if new_zoom_level != self._zoom_level:
-            self._zoom_level = new_zoom_level
-
-            self.engine.camera_controller.update_position_y(camera_pos.y + zoom_step)
+        current_y = camera_pos.y
+        new_y_position = current_y + zoom_step
+        clamped_y_position = max(-50, min(50, new_y_position))
+        if clamped_y_position != current_y:
+            self.engine.camera_controller.update_position_y(clamped_y_position)
 
             if self.status_bar is not None:
                 new_position = self.engine.camera_controller.get_position()
