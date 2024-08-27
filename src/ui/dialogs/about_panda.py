@@ -1,6 +1,7 @@
 import os
 import sys
 
+from panda3d.core import PandaSystem
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QApplication,
@@ -18,7 +19,7 @@ class AboutPanda3DDialog(QDialog):
         super().__init__()
 
         self.setWindowTitle("About Panda3D")
-        self.setFixedSize(550, 350)
+        self.setFixedSize(550, 375)
 
         icon_path = os.path.join(
             os.path.dirname(
@@ -36,7 +37,8 @@ class AboutPanda3DDialog(QDialog):
         header_label = QLabel("<h2>About Panda3D</h2>")
 
         description_label = QLabel(
-            """
+            f"""
+            <p>This program uses Panda3D version {PandaSystem.getVersionString()}.</p>
             <p>Panda3D is a versatile game engine and framework designed for 3D rendering and game development.</p>
             <p>It supports both Python and C++ programming, making it a flexible choice for developers.</p>
             <p>Panda3D is open-source and free to use for any purpose, including commercial applications, thanks to its permissive license.</p>
