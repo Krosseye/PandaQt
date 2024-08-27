@@ -42,8 +42,8 @@ class AboutPanda3DDialog(QDialog):
             <p>Panda3D is a versatile game engine and framework designed for 3D rendering and game development.</p>
             <p>It supports both Python and C++ programming, making it a flexible choice for developers.</p>
             <p>Panda3D is open-source and free to use for any purpose, including commercial applications, thanks to its permissive license.</p>
-            <p>For more information and to access the source code, visit the 
-            <a href="https://github.com/panda3d/panda3d">Panda3D GitHub repository</a> or the 
+            <p>For more information and to access the source code, visit the
+            <a href="https://github.com/panda3d/panda3d">Panda3D GitHub repository</a> or the
             <a href="https://www.panda3d.org">Panda3D website</a>.</p>
             """
         )
