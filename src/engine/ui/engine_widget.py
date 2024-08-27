@@ -5,7 +5,7 @@ from PySide6.QtCore import Qt, QTimer, Signal, Slot
 from PySide6.QtGui import QImage, QMouseEvent, QPainter, QPixmap, QWheelEvent
 from PySide6.QtWidgets import QWidget
 
-from .engine_base import EngineBase
+from ..core.engine_base import EngineBase
 from .input_handler import InputHandler
 
 logger = logging.getLogger(__name__)

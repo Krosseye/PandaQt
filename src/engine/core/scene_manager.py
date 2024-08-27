@@ -1,6 +1,6 @@
 import logging
 
-from .utils.grid_maker import SceneGridMaker
+from ..utils.grid_maker import SceneGridMaker
 
 logger = logging.getLogger(__name__)
 

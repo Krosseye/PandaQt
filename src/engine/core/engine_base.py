@@ -60,7 +60,6 @@ class EngineBase(ShowBase):
             self.pipe, "graphics_engine", 0, fb_props, win_props, flags
         )
 
-        # Create a texture to capture the screen
         self.screen_texture = Texture()
         self.screen_texture.setFormat(Texture.FRgba32)
         self.screen_texture.setMinfilter(Texture.FTLinear)

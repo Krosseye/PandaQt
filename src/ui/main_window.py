@@ -6,13 +6,9 @@ import logging
 
 from PySide6.QtCore import Slot
 from PySide6.QtGui import QAction, QIcon
-from PySide6.QtWidgets import (
-    QLabel,
-    QMainWindow,
-    QStatusBar,
-)
+from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QStatusBar
 
-from engine.engine_widget import EngineWidget
+from engine.ui.engine_widget import EngineWidget
 
 from .dialogs.about import AboutDialog
 from .dialogs.about_panda import AboutPanda3DDialog
@@ -81,7 +77,7 @@ class MainWindow(QMainWindow):
         help_menu = self.menu_bar.addMenu("&Help")
         help_menu.addAction(about_action)
         help_menu.addSeparator()
-        help_menu.addAction("About &Qt", qApp.aboutQt)
+        help_menu.addAction("About &Qt", QApplication.aboutQt)
         help_menu.addAction("About &Panda3D", self._show_about_panda3d)
 
     def _setup_status_bar(self):
