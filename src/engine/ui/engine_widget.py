@@ -17,7 +17,7 @@ class EngineWidget(QWidget):
     def __init__(self, fps_cap, min_width=250, status_bar=None):
         super().__init__()
         palette = self.palette()
-        palette.setColor(self.backgroundRole(), "#3c3c3c")
+        palette.setColor(self.backgroundRole(), "#3d3d3d")
         self.setAutoFillBackground(True)
         self.setPalette(palette)
         self.setMinimumWidth(min_width)

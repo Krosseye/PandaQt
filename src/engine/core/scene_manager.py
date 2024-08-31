@@ -24,7 +24,7 @@ class SceneManager:
 
         panda_model = self.engine.loader.loadModel("models/panda")
         panda_model.reparentTo(self.engine.render)
-        panda_model.setScale(1)
+        panda_model.setScale(0.5)
         panda_model.setPos(0, 0, 0)
         self.scene_objects.append(panda_model)
         logger.info("Scene objects loaded.")
@@ -38,8 +38,13 @@ class SceneManager:
 
     def show_grid(self):
         self.grid.show()
+        self.is_grid_visible = True
         logger.info("Scene grid shown.")
 
     def hide_grid(self):
+        self.is_grid_visible = False
         self.grid.hide()
         logger.info("Scene grid hidden.")
+
+    def is_grid_visible(self):
+        return self.is_grid_visible

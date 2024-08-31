@@ -25,7 +25,7 @@ class CameraController:
         self.camera.reparentTo(self.engine.scene_manager.scene_objects[0])
         self.gimbal = self.engine.render.attach_new_node("gimbal")
         self.engine.cam.reparent_to(self.gimbal)
-        self.engine.cam.set_pos(0, -15, 8)
+        self.engine.cam.set_pos(0, -15, 3)
         self.gimbal.setHpr(0, 0, 0)
 
     def _rotate_camera_task(self, task):

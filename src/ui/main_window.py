@@ -54,6 +54,15 @@ class MainWindow(QMainWindow):
         self.menu_bar = self.menuBar()
         view_menu = self.menu_bar.addMenu("&View")
 
+        self.toggle_lighting_indicator_action = QAction(
+            "Show &Lighting Indicators", self
+        )
+        self.toggle_lighting_indicator_action.setCheckable(True)
+        self.toggle_lighting_indicator_action.setChecked(True)
+        self.toggle_lighting_indicator_action.triggered.connect(
+            self.toggle_lighting_indicator_visibility
+        )
+
         self.toggle_camera_tool_panel_action = QAction("Show &Camera Tool", self)
         self.toggle_camera_tool_panel_action.setCheckable(True)
         self.toggle_camera_tool_panel_action.setChecked(True)
@@ -68,6 +77,8 @@ class MainWindow(QMainWindow):
             self.toggle_export_tool_panel_visibility
         )
 
+        view_menu.addAction(self.toggle_lighting_indicator_action)
+        view_menu.addSeparator()
         view_menu.addAction(self.toggle_camera_tool_panel_action)
         view_menu.addAction(self.toggle_export_tool_panel_action)
 
@@ -125,6 +136,12 @@ class MainWindow(QMainWindow):
             self.camera_tool_panel.hide()
         else:
             self.camera_tool_panel.show()
+
+    def toggle_lighting_indicator_visibility(self):
+        if self.toggle_lighting_indicator_action.isChecked():
+            self.viewport_widget.engine.lighting_system.enable_indicators()
+        else:
+            self.viewport_widget.engine.lighting_system.disable_indicators()
 
     def _show_about_panda3d(self):
         """

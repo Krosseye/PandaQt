@@ -1,6 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCursor, QIcon
 from PySide6.QtWidgets import (
+    QCheckBox,
     QFormLayout,
     QFrame,
     QGroupBox,
@@ -65,7 +66,7 @@ class CameraControlsWidget(QWidget):
         self.z_position_widget = self._create_slider_with_reset(
             label="Z Position",
             range=(-25, 25),
-            default_value=8,
+            default_value=3,
             reset_function=self.reset_z_position,
         )
 
@@ -75,6 +76,11 @@ class CameraControlsWidget(QWidget):
             default_value=0,
             reset_function=self.reset_rotation_speed,
         )
+
+        self.lighting_checkbox = QCheckBox()
+        self.lighting_checkbox.setCheckable(True)
+        self.lighting_checkbox.setChecked(True)
+        self.lighting_checkbox.checkStateChanged.connect(self._toggle_lighting)
 
     def _setup_ui(self):
         # Create the main layout
@@ -104,6 +110,7 @@ class CameraControlsWidget(QWidget):
         properties_layout = QFormLayout()
         properties_layout.addRow("FOV: ", self.fov_widget)
         properties_layout.addRow("Rotation Speed: ", self.rotation_speed_widget)
+        properties_layout.addRow("3-Point Lighting: ", self.lighting_checkbox)
         properties_group.setLayout(properties_layout)
 
         main_layout.addWidget(orientation_group)
@@ -178,6 +185,12 @@ class CameraControlsWidget(QWidget):
         else:
             self.engine.camera_controller.start_rotation()
 
+    def _toggle_lighting(self, state):
+        if state == Qt.Checked:
+            self.engine.lighting_system.enable_lighting()
+        else:
+            self.engine.lighting_system.disable_lighting()
+
     def reset_heading(self):
         self.engine.camera_controller.update_heading(0)
         self.heading_widget.findChild(QSlider).setValue(0)
@@ -203,8 +216,8 @@ class CameraControlsWidget(QWidget):
         self.y_position_widget.findChild(QSlider).setValue(-15)
 
     def reset_z_position(self):
-        self.engine.camera_controller.update_position_z(8)
-        self.z_position_widget.findChild(QSlider).setValue(8)
+        self.engine.camera_controller.update_position_z(3)
+        self.z_position_widget.findChild(QSlider).setValue(3)
 
     def reset_rotation_speed(self):
         self.engine.camera_controller.update_rotation_speed(0)

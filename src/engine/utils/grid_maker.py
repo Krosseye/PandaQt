@@ -11,9 +11,9 @@ class SceneGridMaker:
         self,
         show_xy_plane=True,
         show_endcap_lines=True,
-        x_size=8,
-        y_size=8,
-        grid_step=4,
+        x_size=4,
+        y_size=4,
+        grid_step=2,
         subdivisions=4,
     ):
         self.axis_lines = LineSegs()
@@ -27,11 +27,10 @@ class SceneGridMaker:
 
         self.show_xy_plane = show_xy_plane
         self.show_endcap_lines = show_endcap_lines
-
-        self.x_axis_color = VBase4(1, 0, 0, 1)
-        self.y_axis_color = VBase4(0, 1, 0, 1)
-        self.grid_color = VBase4(0.7, 0.7, 0.7, 1)
-        self.subdivision_color = VBase4(0.35, 0.35, 0.35, 1)
+        self.x_axis_color = VBase4(152 / 255, 59 / 255, 74 / 255, 1.0)
+        self.y_axis_color = VBase4(96 / 255, 132 / 255, 41 / 255, 1)
+        self.grid_color = VBase4(123 / 255, 123 / 255, 123 / 255, 1)
+        self.subdivision_color = VBase4(84 / 255, 84 / 255, 84 / 255, 1)
 
         self.axis_thickness = 1
         self.grid_thickness = 1
