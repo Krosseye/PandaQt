@@ -3,7 +3,6 @@ import logging
 from direct.showbase.ShowBase import ShowBase
 from direct.showbase.ShowBaseGlobal import globalClock
 from panda3d.core import (
-    AntialiasAttrib,
     FrameBufferProperties,
     GraphicsOutput,
     GraphicsPipe,
@@ -15,6 +14,8 @@ from PySide6.QtCore import QObject, Signal, Slot
 from PySide6.QtGui import QImage
 
 from .camera_controller import CameraController
+from .lighting_system import LightingSystem
+from .profile_manager import ProfileManager
 from .scene_manager import SceneManager
 
 logger = logging.getLogger(__name__)
@@ -33,6 +34,8 @@ class EngineBase(ShowBase):
     def __init__(self, fps_cap=60):
         super().__init__(windowType="none")
         loadPrcFileData("", "copy-texture-inverted 1")
+        loadPrcFileData("", "framebuffer-srgb true")
+
         self.notifier = EngineBaseNotifier(self)
         self.previous_image_data = None
         self.fps_cap = fps_cap
@@ -42,34 +45,39 @@ class EngineBase(ShowBase):
         globalClock.setFrameRate(self.fps_cap)
         globalClock.setMode(self.clock.MLimited)
 
-        self.render.clearAntialias()
-        self.render.setAntialias(AntialiasAttrib.MNone)
-
-        fb_props = FrameBufferProperties().getDefault()
+        fb_props = FrameBufferProperties()
+        fb_props.setRgbColor(True)
+        fb_props.setRgbaBits(8, 8, 8, 0)
+        fb_props.setDepthBits(16)
+        fb_props.setForceHardware(True)
 
         win_props = WindowProperties().config_properties
-        win_props.setOpen(False)
 
-        flags = GraphicsPipe.BFFbPropsOptional
-        flags |= GraphicsPipe.BFRefuseWindow
+        flags = GraphicsPipe.BFRefuseWindow
         flags |= GraphicsPipe.BFResizeable
 
         self.makeDefaultPipe()
 
         self.win = self.graphicsEngine.makeOutput(
-            self.pipe, "graphics_engine", 0, fb_props, win_props, flags
+            self.pipe,
+            "graphics_engine",
+            -100,
+            fb_props,
+            win_props,
+            flags,
         )
 
         self.screen_texture = Texture()
-        self.screen_texture.setFormat(Texture.FRgba32)
-        self.screen_texture.setMinfilter(Texture.FTLinear)
-        self.screen_texture.setMagfilter(Texture.FTNearest)
+        self.screen_texture.setFormat(Texture.FRgb32)
         self.win.addRenderTexture(
             self.screen_texture, GraphicsOutput.RTM_copy_ram, GraphicsOutput.RTP_color
         )
 
         self.scene_manager = SceneManager(self)
         self.camera_controller = CameraController(self)
+        self.lighting_system = LightingSystem(self)
+        self.profile_manager = ProfileManager(self)
+        self.profile_manager.use_preview_profile()
 
     @Slot()
     def _capture_current_frame(self, task):

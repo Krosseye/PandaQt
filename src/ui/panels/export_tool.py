@@ -4,7 +4,6 @@ import platform
 import subprocess
 from datetime import datetime
 
-from panda3d.core import AntialiasAttrib
 from platformdirs import user_pictures_dir
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QIcon, QIntValidator
@@ -68,12 +67,12 @@ class ImageExportWidget(QWidget):
         self.anti_aliasing_input = self._create_anti_aliasing_input()
         self.save_path_input = self._create_save_path_input()
         self.preview_checkbox = self._create_preview_checkbox()
-        self.format_input = self._create_format_input()  # Add format selection
+        self.format_input = self._create_format_input()
 
         form_layout.addRow("Width:", self.width_input)
         form_layout.addRow("Height:", self.height_input)
         form_layout.addRow("Anti-Aliasing:", self.anti_aliasing_input)
-        form_layout.addRow("Format:", self.format_input)  # Add format row
+        form_layout.addRow("Format:", self.format_input)
         form_layout.addRow("Export Path:", self.save_path_input)
         form_layout.addRow(self.preview_checkbox)
 
@@ -182,12 +181,9 @@ class ImageExportWidget(QWidget):
         self.requested_height = height
         self.should_show_preview = self.preview_checkbox.isChecked()
 
-        if self.aliasing_level != DEFAULT_ANTI_ALIASING_LEVEL:
-            self.viewport_widget.engine.render.setAntialias(
-                AntialiasAttrib.MMultisample, self.aliasing_level
-            )
-
-        self.viewport_widget.engine.scene_manager.hide_grid()
+        self.viewport_widget.engine.profile_manager.use_export_profile(
+            self.aliasing_level
+        )
 
         self.viewport_widget.size_changed.emit(width, height)
 
@@ -244,8 +240,7 @@ class ImageExportWidget(QWidget):
         self.viewport_widget.size_changed.emit(
             self.old_size.width(), self.old_size.height()
         )
-        self.viewport_widget.engine.render.setAntialias(AntialiasAttrib.MNone)
-        self.viewport_widget.engine.scene_manager.show_grid()
+        self.viewport_widget.engine.profile_manager.use_preview_profile()
 
     def _get_user_inputs(self):
         """Retrieve and validate user inputs for width, height, and save path."""
