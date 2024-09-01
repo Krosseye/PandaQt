@@ -17,11 +17,13 @@ from PySide6.QtWidgets import (
 
 
 class CameraControlsWidget(QWidget):
-    def __init__(self, engine):
+    def __init__(self, engine, status_bar=None):
         super().__init__()
         self.setWindowTitle("Camera Tool")
         self.engine = engine
+        self.status_bar = status_bar
         self.camera_mode = self.engine.camera_controller.camera_mode
+        self.camera_controller = self.engine.camera_controller
         self._init_ui()
         self._setup_ui()
 
@@ -166,22 +168,41 @@ class CameraControlsWidget(QWidget):
         widget.setLayout(layout)
         return widget
 
+    def _update_status_bar(self):
+        if self.status_bar:
+            pos = self.camera_controller.get_position()
+            x, y, z = map(int, [pos.x, pos.y, pos.z])
+            if self.camera_controller.mode == self.camera_mode.ORBIT:
+                orientation = self.camera_controller.gimbal.getHpr()
+            else:
+                orientation = self.camera_controller.camera.getHpr()
+            h, p, r = map(int, orientation)
+            self.status_bar.showMessage(
+                f"X={x}, Y={y}, Z={z} | H={h}, P={p}, R={r}", 500
+            )
+
     def _update_engine_value(self, label, value):
         """Update the engine's value based on the slider's label."""
         if label == "Heading":
-            self.engine.camera_controller.update_heading(value)
+            self.engine.camera_controller.set_orientation(h=value)
+            self._update_status_bar()
         elif label == "Pitch":
-            self.engine.camera_controller.update_pitch(-value)
+            self.engine.camera_controller.set_orientation(p=-value)
+            self._update_status_bar()
         elif label == "Roll":
-            self.engine.camera_controller.update_roll(value)
+            self.engine.camera_controller.set_orientation(r=value)
+            self._update_status_bar()
         elif label == "FOV":
             self.engine.camera_controller.update_fov(value)
         elif label == "X Position":
-            self.engine.camera_controller.update_position_x(value)
+            self.engine.camera_controller.set_position(x=value)
+            self._update_status_bar()
         elif label == "Y Position":
-            self.engine.camera_controller.update_position_y(value)
+            self.engine.camera_controller.set_position(y=value)
+            self._update_status_bar()
         elif label == "Z Position":
-            self.engine.camera_controller.update_position_z(value)
+            self.engine.camera_controller.set_position(z=value)
+            self._update_status_bar()
         elif label == "Rotation Speed":
             self._update_rotation_speed(value)
 
@@ -200,37 +221,48 @@ class CameraControlsWidget(QWidget):
 
     def _toggle_freecam(self, state):
         if state == Qt.Checked:
-            self.engine.camera_controller.set_mode(self.camera_mode.FREE)
+            self.engine.camera_controller.set_mode(
+                self.engine.camera_controller.camera_mode.FREE
+            )
         else:
-            self.engine.camera_controller.set_mode(self.camera_mode.ORBIT)
+            self.engine.camera_controller.set_mode(
+                self.engine.camera_controller.camera_mode.ORBIT
+            )
+        self._update_status_bar()
 
     def reset_heading(self):
-        self.engine.camera_controller.update_heading(0)
+        self.engine.camera_controller.set_orientation(h=0)
         self.heading_widget.findChild(QSlider).setValue(0)
+        self._update_status_bar()
 
     def reset_pitch(self):
-        self.engine.camera_controller.update_pitch(0)
+        self.engine.camera_controller.set_orientation(p=0)
         self.pitch_widget.findChild(QSlider).setValue(0)
+        self._update_status_bar()
 
     def reset_roll(self):
-        self.engine.camera_controller.update_roll(0)
+        self.engine.camera_controller.set_orientation(r=0)
         self.roll_widget.findChild(QSlider).setValue(0)
+        self._update_status_bar()
 
     def reset_fov(self):
         self.engine.camera_controller.update_fov(50)
         self.fov_widget.findChild(QSlider).setValue(50)
 
     def reset_x_position(self):
-        self.engine.camera_controller.update_position_x(0)
+        self.engine.camera_controller.set_position(x=0)
         self.x_position_widget.findChild(QSlider).setValue(0)
+        self._update_status_bar()
 
     def reset_y_position(self):
-        self.engine.camera_controller.update_position_y(-15)
+        self.engine.camera_controller.set_position(y=-15)
         self.y_position_widget.findChild(QSlider).setValue(-15)
+        self._update_status_bar()
 
     def reset_z_position(self):
-        self.engine.camera_controller.update_position_z(3)
+        self.engine.camera_controller.set_position(z=3)
         self.z_position_widget.findChild(QSlider).setValue(3)
+        self._update_status_bar()
 
     def reset_rotation_speed(self):
         self.engine.camera_controller.update_rotation_speed(0)

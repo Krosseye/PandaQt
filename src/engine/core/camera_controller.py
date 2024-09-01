@@ -100,106 +100,56 @@ class CameraController:
         self.rotation_speed = speed
         logger.debug("Camera rotation speed set to: %i", speed)
 
-    def update_orientation(self, h, p, r):
-        """Update the camera's rotation around the gimbal."""
-        if self.mode == CameraMode.ORBIT:
-            self.gimbal.setHpr(h, p, r)
-        else:
-            self.gimbal.setHpr(h, p, r)
-            self.camera.setHpr(h, p, r)
-        logger.debug("Camera rotation set to: H=%i, P=%i, R=%i", h, p, r)
-
-    def update_heading(self, h):
-        """Update the camera's heading."""
-        if self.mode == CameraMode.ORBIT:
-            self.gimbal.set_h(h)
-        else:
-            self.gimbal.set_h(h)
-            self.camera.set_h(h)
-        logger.debug("Camera heading set to: %i", h)
-
-    def update_pitch(self, p):
-        """Update the camera's pitch."""
-        if self.mode == CameraMode.ORBIT:
-            self.gimbal.set_p(p)
-        else:
-            self.gimbal.set_p(p)
-            self.camera.set_p(p)
-        logger.debug("Camera pitch set to: %i", p)
-
-    def update_roll(self, r):
-        """Update the camera's roll."""
-        if self.mode == CameraMode.ORBIT:
-            self.gimbal.set_r(r)
-        else:
-            self.gimbal.set_r(r)
-            self.camera.set_r(r)
-        logger.debug("Camera roll set to: %i", r)
-
-    def update_position_x(self, x):
-        """Update the camera's x position."""
+    def set_position(self, x=None, y=None, z=None):
+        """Set the camera's position."""
         if self.mode == CameraMode.ORBIT:
             current_pos = self.camera.getPos(self.gimbal)
-            self.camera.setPos(self.gimbal, x, current_pos.y, current_pos.z)
-        else:
-            current_pos = self.camera.getPos()
-            self.camera.setPos(x, current_pos.y, current_pos.z)
-        logger.debug("Camera x position set to: %i", x)
-
-    def update_position_y(self, y):
-        """Update the camera's y position."""
-        if self.mode == CameraMode.ORBIT:
-            current_pos = self.camera.getPos(self.gimbal)
-            self.camera.setPos(self.gimbal, current_pos.x, y, current_pos.z)
-        else:
-            current_pos = self.camera.getPos()
-            self.camera.setPos(current_pos.x, y, current_pos.z)
-        logger.debug("Camera y position set to: %i", y)
-
-    def update_position_z(self, z):
-        """Update the camera's z position."""
-        if self.mode == CameraMode.ORBIT:
-            current_pos = self.camera.getPos(self.gimbal)
-            self.camera.setPos(self.gimbal, current_pos.x, current_pos.y, z)
-        else:
-            current_pos = self.camera.getPos()
-            self.camera.setPos(current_pos.x, current_pos.y, z)
-        logger.debug("Camera z position set to: %i", z)
-
-    def update_position(self, position):
-        """Update the camera's position."""
-        x, y, z = position
-        if self.mode == CameraMode.ORBIT:
+            x = x if x is not None else current_pos.x
+            y = y if y is not None else current_pos.y
+            z = z if z is not None else current_pos.z
             self.camera.setPos(self.gimbal, x, y, z)
         else:
+            current_pos = self.camera.getPos()
+            x = x if x is not None else current_pos.x
+            y = y if y is not None else current_pos.y
+            z = z if z is not None else current_pos.z
             self.camera.setPos(x, y, z)
         logger.debug("Camera position set to: %i,%i,%i", x, y, z)
 
-    def get_position(self):
-        current_pos = (
-            self.camera.getPos(self.gimbal)
-            if self.mode == CameraMode.ORBIT
-            else self.camera.getPos()
-        )
-        return current_pos
+    def set_orientation(self, h=None, p=None, r=None):
+        """Set the camera's orientation."""
+        if self.mode == CameraMode.ORBIT:
+            current_h, current_p, current_r = self.gimbal.getHpr()
+            h = h if h is not None else current_h
+            p = p if p is not None else current_p
+            r = r if r is not None else current_r
+            self.gimbal.setHpr(h, p, r)
+        else:
+            current_h, current_p, current_r = self.gimbal.getHpr()
+            h = h if h is not None else current_h
+            p = p if p is not None else current_p
+            r = r if r is not None else current_r
+            self.gimbal.setHpr(h, p, r)
+            self.camera.setHpr(h, p, r)
+        logger.debug("Camera orientation set to: H=%i, P=%i, R=%i", h, p, r)
 
     def move_vertical(self, distance):
-        """Move the camera vertiacl relative to its current orientation."""
+        """Move the camera vertically relative to its current orientation."""
         if self.mode == CameraMode.FREE:
             up_vector = Vec3(0, 0, 1)
             move_vector = self.camera.getMat().xform_vec(up_vector) * distance
             new_pos = self.camera.getPos() + move_vector
             self.camera.setPos(new_pos)
-            logger.debug("Camera moved vertiacl by: %i", distance)
+            logger.debug("Camera moved vertically by: %i", distance)
 
     def move_horizontal(self, distance):
-        """Move the camera horizontal relative to its current orientation."""
+        """Move the camera horizontally relative to its current orientation."""
         if self.mode == CameraMode.FREE:
             left_vector = Vec3(1, 0, 0)
             move_vector = self.camera.getMat().xform_vec(left_vector) * distance
             new_pos = self.camera.getPos() + move_vector
             self.camera.setPos(new_pos)
-            logger.debug("Camera moved horizontal by: %i", distance)
+            logger.debug("Camera moved horizontally by: %i", distance)
 
     def zoom(self, distance):
         """Zoom the camera relative to its current orientation."""
@@ -209,3 +159,11 @@ class CameraController:
             new_pos = self.camera.getPos() + move_vector
             self.camera.setPos(new_pos)
             logger.debug("Camera zoomed by: %i", distance)
+
+    def get_position(self):
+        current_pos = (
+            self.camera.getPos(self.gimbal)
+            if self.mode == CameraMode.ORBIT
+            else self.camera.getPos()
+        )
+        return current_pos

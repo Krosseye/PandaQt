@@ -21,7 +21,7 @@ def _create_camera_tool_dock(main_window):
         QDockWidget.DockWidgetFloatable | QDockWidget.DockWidgetMovable
     )
     main_window.camera_tool_panel.setWidget(
-        CameraControlsWidget(main_window.viewport_widget.engine)
+        CameraControlsWidget(main_window.viewport_widget.engine, main_window.status_bar)
     )
     main_window.camera_tool_panel.setAllowedAreas(
         Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea

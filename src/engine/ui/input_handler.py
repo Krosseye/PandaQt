@@ -33,9 +33,16 @@ class InputHandler:
 
     def _update_status_bar(self):
         if self.status_bar:
-            new_position = self.camera_controller.get_position()
-            x, y, z = map(int, [new_position.x, new_position.y, new_position.z])
-            self.status_bar.showMessage(f"X={x}, Y={y}, Z={z}", 500)
+            pos = self.camera_controller.get_position()
+            x, y, z = map(int, [pos.x, pos.y, pos.z])
+            if self.camera_controller.mode == CameraMode.ORBIT:
+                orientation = self.camera_controller.gimbal.getHpr()
+            else:
+                orientation = self.camera_controller.camera.getHpr()
+            h, p, r = map(int, orientation)
+            self.status_bar.showMessage(
+                f"X={x}, Y={y}, Z={z} | H={h}, P={p}, R={r}", 500
+            )
 
     def handle_mouse_press(self, event: QMouseEvent):
         if event.button() == Qt.MouseButton.MiddleButton:
@@ -49,10 +56,7 @@ class InputHandler:
         self._update_cursor(self.mouse_state)
 
     def handle_mouse_release(self, event: QMouseEvent):
-        if event.button() == Qt.MouseButton.MiddleButton:
-            self.mouse_state = MouseState.NONE
-            event.accept()
-        elif event.button() == Qt.MouseButton.RightButton:
+        if event.button() in (Qt.MouseButton.MiddleButton, Qt.MouseButton.RightButton):
             self.mouse_state = MouseState.NONE
             event.accept()
         self._update_cursor(self.mouse_state)
@@ -65,42 +69,36 @@ class InputHandler:
         delta_x = current_pos.x() - self._last_mouse_pos.x()
         delta_y = current_pos.y() - self._last_mouse_pos.y()
 
+        sensitivity = 0.1
+        orientation_sensitivity = 0.5
+
         if self.mouse_state == MouseState.MIDDLE:
-            delta_x *= 0.1
-            delta_y *= -0.1
+            delta_x *= sensitivity
+            delta_y *= -sensitivity
 
             if self.camera_controller.mode == CameraMode.FREE:
                 self.camera_controller.move_horizontal(delta_x)
                 self.camera_controller.move_vertical(delta_y)
             else:
-                camera_pos = self.camera_controller.get_position()
-                self.camera_controller.update_position_x(camera_pos.x + delta_x)
-                self.camera_controller.update_position_z(camera_pos.z + delta_y)
+                pos = self.camera_controller.get_position()
+                self.camera_controller.set_position(
+                    x=pos.x + delta_x, y=pos.y, z=pos.z + delta_y
+                )
 
             self._update_status_bar()
 
         elif self.mouse_state == MouseState.RIGHT:
-            delta_x *= -1
-            delta_y *= -1
+            delta_x *= -orientation_sensitivity
+            delta_y *= -orientation_sensitivity
 
             if self.camera_controller.mode == CameraMode.ORBIT:
                 h, p, r = self.camera_controller.gimbal.getHpr()
-                self.camera_controller.update_heading((h + delta_x) % 360)
-                self.camera_controller.update_pitch((p + delta_y) % 360)
+                self.camera_controller.set_orientation(h=h + delta_x, p=p + delta_y)
             else:
                 h, p, r = self.camera_controller.camera.getHpr()
-                self.camera_controller.camera.setHpr(
-                    (h + delta_x) % 360, (p + delta_y) % 360, r
-                )
+                self.camera_controller.set_orientation(h=h + delta_x, p=p + delta_y)
 
-            if self.status_bar:
-                new_orientation = (
-                    self.camera_controller.gimbal.getHpr()
-                    if self.camera_controller.mode == CameraMode.ORBIT
-                    else self.camera_controller.camera.getHpr()
-                )
-                h, p, r = map(int, new_orientation)
-                self.status_bar.showMessage(f"H={h}, P={p}, R={r}", 500)
+            self._update_status_bar()
 
         self._last_mouse_pos = current_pos
         event.accept()
@@ -111,9 +109,9 @@ class InputHandler:
         if self.camera_controller.mode == CameraMode.FREE:
             self.camera_controller.zoom(zoom_step)
         elif self.camera_controller.mode == CameraMode.ORBIT:
-            camera_pos = self.camera_controller.get_position()
-            new_y_position = max(-50, min(50, camera_pos.y + zoom_step))
-            if new_y_position != camera_pos.y:
-                self.camera_controller.update_position_y(new_y_position)
+            pos = self.camera_controller.get_position()
+            self.camera_controller.set_position(
+                x=pos.x, y=max(-50, min(50, pos.y + zoom_step)), z=pos.z
+            )
 
         self._update_status_bar()
