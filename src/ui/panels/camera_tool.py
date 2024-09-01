@@ -21,6 +21,7 @@ class CameraControlsWidget(QWidget):
         super().__init__()
         self.setWindowTitle("Camera Tool")
         self.engine = engine
+        self.camera_mode = self.engine.camera_controller.camera_mode
         self._init_ui()
         self._setup_ui()
 
@@ -82,6 +83,11 @@ class CameraControlsWidget(QWidget):
         self.lighting_checkbox.setChecked(True)
         self.lighting_checkbox.checkStateChanged.connect(self._toggle_lighting)
 
+        self.freecam_checkbox = QCheckBox()
+        self.freecam_checkbox.setCheckable(True)
+        self.freecam_checkbox.setChecked(False)
+        self.freecam_checkbox.checkStateChanged.connect(self._toggle_freecam)
+
     def _setup_ui(self):
         # Create the main layout
         main_layout = QVBoxLayout()
@@ -110,6 +116,7 @@ class CameraControlsWidget(QWidget):
         properties_layout = QFormLayout()
         properties_layout.addRow("FOV: ", self.fov_widget)
         properties_layout.addRow("Rotation Speed: ", self.rotation_speed_widget)
+        properties_layout.addRow("Free Cam: ", self.freecam_checkbox)
         properties_layout.addRow("3-Point Lighting: ", self.lighting_checkbox)
         properties_group.setLayout(properties_layout)
 
@@ -190,6 +197,12 @@ class CameraControlsWidget(QWidget):
             self.engine.lighting_system.enable_lighting()
         else:
             self.engine.lighting_system.disable_lighting()
+
+    def _toggle_freecam(self, state):
+        if state == Qt.Checked:
+            self.engine.camera_controller.set_mode(self.camera_mode.FREE)
+        else:
+            self.engine.camera_controller.set_mode(self.camera_mode.ORBIT)
 
     def reset_heading(self):
         self.engine.camera_controller.update_heading(0)
