@@ -31,15 +31,22 @@ class InputHandler:
         }
         self.widget.setCursor(cursor_map.get(state, Qt.CursorShape.ArrowCursor))
 
+    @staticmethod
+    def _normalize_angle(angle):
+        return angle % 360
+
     def _update_status_bar(self):
         if self.status_bar:
             pos = self.camera_controller.get_position()
             x, y, z = map(int, [pos.x, pos.y, pos.z])
+
             if self.camera_controller.mode == CameraMode.ORBIT:
                 orientation = self.camera_controller.gimbal.getHpr()
             else:
                 orientation = self.camera_controller.camera.getHpr()
-            h, p, r = map(int, orientation)
+
+            h, p, r = map(int, map(self._normalize_angle, orientation))
+
             self.status_bar.showMessage(
                 f"X={x}, Y={y}, Z={z} | H={h}, P={p}, R={r}", 500
             )
