@@ -4,10 +4,7 @@ from panda3d.core import (
     AmbientLight,
     DirectionalLight,
     Filename,
-    Material,
     Point3,
-    Texture,
-    TransparencyAttrib,
     Vec4,
 )
 
