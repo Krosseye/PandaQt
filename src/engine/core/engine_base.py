@@ -78,6 +78,25 @@ class EngineBase(ShowBase):
         self.lighting_system = LightingSystem(self)
         self.profile_manager = ProfileManager(self)
         self.profile_manager.use_preview_profile()
+        # self._setup_hd_pipeline()
+
+    def _setup_hd_pipeline(self):
+        import simplepbr
+
+        self.pipeline = simplepbr.init(
+            enable_fog=False,
+            use_normal_maps=True,
+            use_occlusion_maps=True,
+            use_emission_maps=True,
+            enable_shadows=True,
+            exposure=1,
+            shadow_bias=0.005,
+            msaa_samples=0,
+        )
+        loadPrcFileData("", "copy-texture-inverted 0")
+        self.pipeline._filtermgr.buffers[0].setClearColor(
+            (61 / 255, 61 / 255, 61 / 255, 1)
+        )
 
     @Slot()
     def _capture_current_frame(self, task):
