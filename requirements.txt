@@ -1,3 +1,4 @@
-pyside6
-panda3d
-platformdirs
+pyside6==6.7.2
+panda3d==1.10.14
+panda3d-simplepbr==0.12.0
+platformdirs==4.2.2

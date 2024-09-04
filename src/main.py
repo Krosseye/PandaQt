@@ -1,3 +1,4 @@
+import argparse
 import logging
 import os
 import sys
@@ -25,9 +26,9 @@ def _get_fps_cap(screen):
         return 45
 
 
-def _create_main_window(fps_cap):
+def _create_main_window(fps_cap, enable_hd_renderer):
     """Creates and configures the main window."""
-    window = MainWindow(fps_cap)
+    window = MainWindow(fps_cap, enable_hd_renderer=enable_hd_renderer)
 
     app_icon = QIcon(os.path.join(os.path.dirname(__file__), "resources", "icon.png"))
     window.setWindowIcon(app_icon)
@@ -45,13 +46,21 @@ def _create_main_window(fps_cap):
 
 
 def _main():
+    parser = argparse.ArgumentParser(description="PandaQt Application")
+    parser.add_argument(
+        "--hd-renderer",
+        action="store_true",
+        help="Enable experimental HD renderer",
+    )
+    args = parser.parse_args()
+
     _setup_logging()
 
     app = QApplication(sys.argv)
     screen = app.primaryScreen()
     fps_cap = _get_fps_cap(screen)
 
-    window = _create_main_window(fps_cap)
+    window = _create_main_window(fps_cap, enable_hd_renderer=args.hd_renderer)
     window.show()
 
     # Start engine after creating main window

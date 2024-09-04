@@ -14,7 +14,9 @@ logger = logging.getLogger(__name__)
 class EngineWidget(QWidget):
     size_changed = Signal(int, int)
 
-    def __init__(self, fps_cap, min_width=250, status_bar=None):
+    def __init__(
+        self, fps_cap, min_width=250, status_bar=None, enable_hd_renderer=False
+    ):
         super().__init__()
         palette = self.palette()
         palette.setColor(self.backgroundRole(), "#3d3d3d")
@@ -23,7 +25,7 @@ class EngineWidget(QWidget):
         self.setMinimumWidth(min_width)
 
         self._width, self._height = self.size().width(), self.size().height()
-        self.engine = EngineBase(fps_cap)
+        self.engine = EngineBase(fps_cap, enable_hd_renderer)
         self.pixmap = QPixmap()
         self.status_bar = status_bar
 

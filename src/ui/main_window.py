@@ -22,13 +22,14 @@ class MainWindow(QMainWindow):
     Main window class for the Panda3D + PySide6 application.
     """
 
-    def __init__(self, fps_cap):
+    def __init__(self, fps_cap, enable_hd_renderer=False):
         """
         Initialize the main window.
         """
         super().__init__()
 
         self.fps_cap = fps_cap
+        self.enable_hd_renderer = enable_hd_renderer
         self._init_ui()
         self._setup_menu()
         setup_docks(self)
@@ -44,7 +45,11 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("PandaQt")
         self._setup_status_bar()
 
-        self.viewport_widget = EngineWidget(self.fps_cap, status_bar=self.status_bar)
+        self.viewport_widget = EngineWidget(
+            self.fps_cap,
+            status_bar=self.status_bar,
+            enable_hd_renderer=self.enable_hd_renderer,
+        )
         self.setCentralWidget(self.viewport_widget)
 
     def _setup_menu(self):

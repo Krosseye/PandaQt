@@ -12,6 +12,7 @@ from panda3d.core import (
 )
 from PySide6.QtCore import QObject, Signal, Slot
 from PySide6.QtGui import QImage
+from PySide6.QtWidgets import QMessageBox
 
 from .camera_controller import CameraController
 from .lighting_system import LightingSystem
@@ -31,7 +32,7 @@ class EngineBaseNotifier(QObject):
 
 
 class EngineBase(ShowBase):
-    def __init__(self, fps_cap=60):
+    def __init__(self, fps_cap=60, enable_hd_renderer=False):
         super().__init__(windowType="none")
         loadPrcFileData("", "copy-texture-inverted 1")
         loadPrcFileData("", "framebuffer-srgb true")
@@ -78,25 +79,34 @@ class EngineBase(ShowBase):
         self.lighting_system = LightingSystem(self)
         self.profile_manager = ProfileManager(self)
         self.profile_manager.use_preview_profile()
-        # self._setup_hd_pipeline()
+
+        if enable_hd_renderer:
+            self._setup_hd_pipeline()
 
     def _setup_hd_pipeline(self):
-        import simplepbr
+        try:
+            import simplepbr
 
-        self.pipeline = simplepbr.init(
-            enable_fog=False,
-            use_normal_maps=True,
-            use_occlusion_maps=True,
-            use_emission_maps=True,
-            enable_shadows=True,
-            exposure=1,
-            shadow_bias=0.005,
-            msaa_samples=0,
-        )
-        loadPrcFileData("", "copy-texture-inverted 0")
-        self.pipeline._filtermgr.buffers[0].setClearColor(
-            (61 / 255, 61 / 255, 61 / 255, 1)
-        )
+            SIMPLE_PBR_SUPPORT = True
+        except ImportError:
+            SIMPLE_PBR_SUPPORT = False
+
+            message_box = QMessageBox()
+            message_box.setIcon(QMessageBox.Warning)
+            message_box.setWindowTitle("HD Renderer Unavailable")
+            message_box.setText(
+                "The HD Renderer could not be initialized, your device may not support it.\n"
+                "The program will fall back to the built-in renderer."
+            )
+            message_box.setStandardButtons(QMessageBox.Ok)
+            message_box.exec()
+
+        if SIMPLE_PBR_SUPPORT:
+            self.pipeline = simplepbr.init(exposure=1, msaa_samples=0)
+            loadPrcFileData("", "copy-texture-inverted 0")
+            self.pipeline._filtermgr.buffers[0].setClearColor(
+                (61 / 255, 61 / 255, 61 / 255, 1)
+            )
 
     @Slot()
     def _capture_current_frame(self, task):
