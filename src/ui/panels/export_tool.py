@@ -50,6 +50,7 @@ class ImageExportWidget(QWidget):
         scroll_area = QScrollArea()
         scroll_area.setFrameShape(QFrame.NoFrame)
         scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll_area.setMinimumWidth(200)
         scroll_area.setWidgetResizable(True)
         scroll_area.setWidget(container_widget)
 
