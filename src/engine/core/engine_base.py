@@ -10,7 +10,7 @@ from panda3d.core import (
     WindowProperties,
     loadPrcFileData,
 )
-from PySide6.QtCore import QObject, Signal, Slot
+from PySide6.QtCore import QObject, QTimer, Signal, Slot
 from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QMessageBox
 
@@ -42,6 +42,7 @@ class EngineBase(ShowBase):
         self.fps_cap = fps_cap
         self.pipe = None
         self.image_data = None
+        self.capture_timer = None
 
         globalClock.setFrameRate(self.fps_cap)
         globalClock.setMode(self.clock.MLimited)
@@ -83,33 +84,41 @@ class EngineBase(ShowBase):
         if enable_hd_renderer:
             self._setup_hd_pipeline()
 
+        self._setup_timer()
+
     def _setup_hd_pipeline(self):
         try:
             import simplepbr
 
-            SIMPLE_PBR_SUPPORT = True
-        except ImportError:
-            SIMPLE_PBR_SUPPORT = False
-
-            message_box = QMessageBox()
-            message_box.setIcon(QMessageBox.Warning)
-            message_box.setWindowTitle("HD Renderer Unavailable")
-            message_box.setText(
-                "The HD Renderer could not be initialized, your device may not support it.\n"
-                "The program will fall back to the built-in renderer."
-            )
-            message_box.setStandardButtons(QMessageBox.Ok)
-            message_box.exec()
-
-        if SIMPLE_PBR_SUPPORT:
             self.pipeline = simplepbr.init(exposure=1, msaa_samples=0)
             loadPrcFileData("", "copy-texture-inverted 0")
             self.pipeline._filtermgr.buffers[0].setClearColor(
                 (61 / 255, 61 / 255, 61 / 255, 1)
             )
+            logger.info("HD Renderer enabled.")
+        except ImportError:
+            _message = str(
+                "The HD Renderer could not be initialized, "
+                + "your device may not support it.\n\n"
+                + "The program will fall back to the built-in renderer."
+            )
+
+            message_box = QMessageBox(
+                QMessageBox.Warning,
+                "HD Renderer Unavailable",
+                _message,
+                QMessageBox.Ok,
+            )
+            logger.warning(_message.replace("\n\n", " "))
+            message_box.exec()
+
+    def _setup_timer(self):
+        self.capture_timer = QTimer()
+        self.capture_timer.timeout.connect(self._capture_current_frame)
+        self.capture_timer.setInterval(round(1000 / self.fps_cap))
 
     @Slot()
-    def _capture_current_frame(self, task):
+    def _capture_current_frame(self):
         self.notifier.fps_updated.emit(round(self.clock.getAverageFrameRate()))
 
         tex_xsize = self.screen_texture.getXSize()
@@ -121,14 +130,14 @@ class EngineBase(ShowBase):
         if image_data == self.previous_image_data:
             logger.debug("Frame from buffer skipped: No changes")
             self.previous_image_data = image_data
-            return task.cont
+            return
 
         expected_size = width * height * 4
         if len(image_data) != expected_size:
             logger.debug(
                 "Frame from buffer skipped: Size mismatch between image data and expected dimensions"
             )
-            return task.cont
+            return
 
         q_image = QImage(
             image_data,
@@ -142,11 +151,15 @@ class EngineBase(ShowBase):
         self.previous_image_data = image_data
         logger.debug("Frame from buffer captured: Size %i x %i", width, height)
 
-        return task.cont
-
     @Slot()
     def start_frame_capture(self):
-        self.taskMgr.add(self._capture_current_frame, "_capture_current_frame")
+        if self.capture_timer is not None:
+            self.capture_timer.start()
+
+    @Slot()
+    def stop_frame_capture(self):
+        if self.capture_timer is not None:
+            self.capture_timer.stop()
 
     @Slot(int, int)
     def update_window_size(self, width, height):
@@ -157,6 +170,7 @@ class EngineBase(ShowBase):
             logger.debug("Resolution set to: %i x %i", width, height)
 
     def stop(self):
+        self.stop_frame_capture()
         self.screen_texture.clearRamImage()
         self.graphicsEngine.removeWindow(self.win)
         self.finalizeExit()
