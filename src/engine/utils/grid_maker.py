@@ -27,13 +27,13 @@ class SceneGridMaker:
 
         self.show_xy_plane = show_xy_plane
         self.show_endcap_lines = show_endcap_lines
-        self.x_axis_color = VBase4(152 / 255, 59 / 255, 74 / 255, 1.0)
-        self.y_axis_color = VBase4(96 / 255, 132 / 255, 41 / 255, 1)
+        self.x_axis_color = VBase4(230 / 255, 55 / 255, 80 / 255, 1)
+        self.y_axis_color = VBase4(124 / 255, 189 / 255, 19 / 255, 1)
         self.grid_color = VBase4(123 / 255, 123 / 255, 123 / 255, 1)
         self.subdivision_color = VBase4(84 / 255, 84 / 255, 84 / 255, 1)
 
-        self.axis_thickness = 1
-        self.grid_thickness = 1
+        self.axis_thickness = 2
+        self.grid_thickness = 0.5
         self.subdivision_thickness = 1
 
     def create_grid(self):
@@ -73,10 +73,11 @@ class SceneGridMaker:
         if self.show_xy_plane:
             # Draw Y lines across X axis (XY Plane)
             for x in self._frange(0, self.x_size, self.grid_step):
-                self.grid_lines.moveTo(x, -self.y_size, 0)
-                self.grid_lines.drawTo(x, self.y_size, 0)
-                self.grid_lines.moveTo(-x, -self.y_size, 0)
-                self.grid_lines.drawTo(-x, self.y_size, 0)
+                if x != 0:
+                    self.grid_lines.moveTo(x, -self.y_size, 0)
+                    self.grid_lines.drawTo(x, self.y_size, 0)
+                    self.grid_lines.moveTo(-x, -self.y_size, 0)
+                    self.grid_lines.drawTo(-x, self.y_size, 0)
 
             if self.show_endcap_lines:
                 self.grid_lines.moveTo(self.x_size, -self.y_size, 0)
@@ -86,10 +87,11 @@ class SceneGridMaker:
 
             # Draw X lines across Y axis (XY Plane)
             for y in self._frange(0, self.y_size, self.grid_step):
-                self.grid_lines.moveTo(-self.x_size, y, 0)
-                self.grid_lines.drawTo(self.x_size, y, 0)
-                self.grid_lines.moveTo(-self.x_size, -y, 0)
-                self.grid_lines.drawTo(self.x_size, -y, 0)
+                if y != 0:
+                    self.grid_lines.moveTo(-self.x_size, y, 0)
+                    self.grid_lines.drawTo(self.x_size, y, 0)
+                    self.grid_lines.moveTo(-self.x_size, -y, 0)
+                    self.grid_lines.drawTo(self.x_size, -y, 0)
 
             if self.show_endcap_lines:
                 self.grid_lines.moveTo(-self.x_size, self.y_size, 0)
@@ -111,17 +113,19 @@ class SceneGridMaker:
         if self.show_xy_plane:
             # Draw Y lines across X axis (XY Plane)
             for x in self._frange(0, self.x_size, adjusted_step):
-                self.subdivision_lines.moveTo(x, -self.y_size, 0)
-                self.subdivision_lines.drawTo(x, self.y_size, 0)
-                self.subdivision_lines.moveTo(-x, -self.y_size, 0)
-                self.subdivision_lines.drawTo(-x, self.y_size, 0)
+                if x != 0:
+                    self.subdivision_lines.moveTo(x, -self.y_size, 0)
+                    self.subdivision_lines.drawTo(x, self.y_size, 0)
+                    self.subdivision_lines.moveTo(-x, -self.y_size, 0)
+                    self.subdivision_lines.drawTo(-x, self.y_size, 0)
 
             # Draw X lines across Y axis (XY Plane)
             for y in self._frange(0, self.y_size, adjusted_step):
-                self.subdivision_lines.moveTo(-self.x_size, y, 0)
-                self.subdivision_lines.drawTo(self.x_size, y, 0)
-                self.subdivision_lines.moveTo(-self.x_size, -y, 0)
-                self.subdivision_lines.drawTo(self.x_size, -y, 0)
+                if y != 0:
+                    self.subdivision_lines.moveTo(-self.x_size, y, 0)
+                    self.subdivision_lines.drawTo(self.x_size, y, 0)
+                    self.subdivision_lines.moveTo(-self.x_size, -y, 0)
+                    self.subdivision_lines.drawTo(self.x_size, -y, 0)
 
     def _create_node_path(self):
         grid_node_path = NodePath(PandaNode("grid"))
