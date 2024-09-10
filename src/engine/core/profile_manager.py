@@ -62,6 +62,7 @@ class ProfileManager:
         """Sets up the preview profile."""
         self._clear_antialias()
         self.scene_manager.show_grid()
+        self.scene_manager.show_axis_indicator()
 
         if self._indicators_enabled:
             self.lighting_system.enable_indicators()
@@ -76,6 +77,7 @@ class ProfileManager:
         """
         self._set_antialias(aliasing_level)
         self.scene_manager.hide_grid()
+        self.scene_manager.hide_axis_indicator()
 
         self._indicators_enabled = self.lighting_system.indicators_enabled
 

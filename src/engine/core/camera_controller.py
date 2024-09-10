@@ -133,6 +133,16 @@ class CameraController:
             self.camera.setHpr(h, p, r)
         logger.debug("Camera orientation set to: H=%i, P=%i, R=%i", h, p, r)
 
+    def get_orientation(self):
+        """Get the camera's current orientation (heading, pitch, roll)."""
+        if self.mode == CameraMode.ORBIT:
+            orientation = self.gimbal.getHpr()
+        else:
+            orientation = self.camera.getHpr()
+        h, p, r = orientation
+        logger.debug("Camera orientation: H=%i, P=%i, R=%i", h, p, r)
+        return orientation
+
     def move_vertical(self, distance):
         """Move the camera vertically relative to its current orientation."""
         if self.mode == CameraMode.FREE:

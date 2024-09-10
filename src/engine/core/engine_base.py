@@ -3,9 +3,11 @@ import logging
 from direct.showbase.ShowBase import ShowBase
 from direct.showbase.ShowBaseGlobal import globalClock
 from panda3d.core import (
+    Camera,
     FrameBufferProperties,
     GraphicsOutput,
     GraphicsPipe,
+    OrthographicLens,
     Texture,
     WindowProperties,
     loadPrcFileData,
@@ -74,6 +76,18 @@ class EngineBase(ShowBase):
         self.win.addRenderTexture(
             self.screen_texture, GraphicsOutput.RTM_copy_ram, GraphicsOutput.RTP_color
         )
+
+        self.cam2d_node = Camera("cam2d")
+        self.cam2d = self.render2d.attachNewNode(self.cam2d_node)
+
+        lens = OrthographicLens()
+        lens.setFilmSize(2, 2)
+        lens.setNearFar(-1, 1000)
+        self.cam2d_node.setLens(lens)
+
+        aspect2d_region = self.win.makeDisplayRegion()
+        aspect2d_region.setCamera(self.cam2d)
+        aspect2d_region.setSort(20)
 
         self.scene_manager = SceneManager(self)
         self.camera_controller = CameraController(self)
