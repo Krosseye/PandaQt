@@ -39,6 +39,8 @@ class SceneManager:
             parent=self.engine.aspect2d,
         )
         self.axis_indicator.setTransparency(True)
+        self.axis_indicator.setDepthTest(True)
+        self.axis_indicator.setDepthWrite(True)
 
         self.engine.taskMgr.add(
             self._update_axis_indicator_position, "update_axis_position"
