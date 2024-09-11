@@ -47,8 +47,17 @@ class SceneManager:
         )
 
     def _update_axis_indicator_position(self, task):
-        """Update the position of the axis indicator orientation."""
-        self.axis_indicator.setHpr(-self.engine.camera_controller.get_orientation())
+        """Update the orientation of the axis indicator."""
+        h, p, r = self.engine.camera_controller.get_orientation()
+        p = p % 360
+
+        if 0 <= p < 180:
+            flip_z = 180
+            h = -h
+        else:
+            flip_z = 0
+
+        self.axis_indicator.setHpr(h, flip_z, 0)
 
         return task.cont
 
