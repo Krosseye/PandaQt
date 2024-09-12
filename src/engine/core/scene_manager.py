@@ -1,7 +1,5 @@
 import logging
 
-from direct.gui.OnscreenGeom import OnscreenGeom
-
 from ..utils.axis_maker import AxisIndicator
 from ..utils.grid_maker import SceneGridMaker
 
@@ -26,40 +24,27 @@ class SceneManager:
 
     def _create_axis_indicator(self):
         self.axis_maker = AxisIndicator(loader=self.engine.loader)
-        axis_model = self.axis_maker.get_axis_node()
+        self.axis_indicator = self.axis_maker.get_axis_node()
 
-        self.axis_indicator = OnscreenGeom(
-            geom=axis_model,
-            scale=0.125,
-            pos=(
-                1.1,
-                0,
-                0.8,
-            ),
-            parent=self.engine.aspect2d,
-        )
+        axis_parent_node = self.engine.aspect2d.attachNewNode("axis_parent_node")
+        axis_parent_node.setScale(0.125)
+        axis_parent_node.setPos(1.1, 0, 0.8)
+        axis_parent_node.reparentTo(self.engine.aspect2d)
+
+        self.axis_indicator.reparentTo(axis_parent_node)
         self.axis_indicator.setTransparency(True)
         self.axis_indicator.setDepthTest(True)
         self.axis_indicator.setDepthWrite(True)
 
-        self.engine.taskMgr.add(
-            self._update_axis_indicator_position, "update_axis_position"
+        self.engine.taskMgr.doMethodLater(
+            0.25,
+            self._set_axis_compass,
+            "_set_axis_compass",
         )
 
-    def _update_axis_indicator_position(self, task):
-        """Update the orientation of the axis indicator."""
-        h, p, r = self.engine.camera_controller.get_orientation()
-        p = p % 360
-
-        if 0 <= p < 180:
-            flip_z = 180
-            h = -h
-        else:
-            flip_z = 0
-
-        self.axis_indicator.setHpr(h, flip_z, 0)
-
-        return task.cont
+    def _set_axis_compass(self, task):
+        self.axis_indicator.setCompass(self.engine.camera_controller.gimbal)
+        return
 
     def load_objects(self):
         self.unload_objects()
